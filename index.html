@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>زر Pause عند النسخ</title>
+  
+  <!-- ربط ملف Manifest واللون الرئيسي للتطبيق -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#ff4757">
+  
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #121212;
+      color: #ffffff;
+      padding: 20px;
+      line-height: 1.8;
+    }
+
+    .content-box {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #333;
+      max-width: 600px;
+      margin: 20px auto;
+    }
+
+    #floating-pause-btn {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background-color: #ff4757;
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: bold;
+      box-shadow: 0 8px 20px rgba(255, 71, 87, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 9999;
+    }
+
+    #floating-pause-btn.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    #floating-pause-btn:active {
+      scale: 0.95;
+    }
+
+    .status-text {
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="content-box">
+    <h3>جرّب نسخ أي جزء من هذا النص:</h3>
+    <p>
+      هذا نص تجريبي لاختبار ظهور زر الإيقاف المؤقت (Pause) بشكل مباشر وفوري بمجرد قيامك بتحديد أي جملة والضغط على "نسخ" (Copy).
+    </p>
+  </div>
+
+  <p class="status-text" id="status">في انتظار نسخ أي نص...</p>
+
+  <button id="floating-pause-btn" onclick="handlePauseClick()">
+    <span>⏸</span>
+    <span id="btn-label">Pause</span>
+  </button>
+
+  <script>
+    const pauseBtn = document.getElementById('floating-pause-btn');
+    const btnLabel = document.getElementById('btn-label');
+    const statusText = document.getElementById('status');
+    let hideTimeout;
+    let isPaused = false;
+
+    document.addEventListener('copy', () => {
+      const selectedText = window.getSelection().toString().trim();
+      if (selectedText.length > 0) {
+        showFloatingButton(selectedText);
+      }
+    });
+
+    function showFloatingButton(copiedText) {
+      isPaused = false;
+      btnLabel.textContent = "Pause";
+      pauseBtn.style.backgroundColor = "#ff4757";
+      
+      pauseBtn.classList.add('show');
+      statusText.textContent = `تم نسخ: "${copiedText.substring(0, 30)}..."`;
+
+      clearTimeout(hideTimeout);
+      hideTimeout = setTimeout(() => {
+        pauseBtn.classList.remove('show');
+      }, 5000);
+    }
+
+    function handlePauseClick() {
+      isPaused = !isPaused;
+      if (isPaused) {
+        btnLabel.textContent = "Resumed (متوقف)";
+        pauseBtn.style.backgroundColor = "#2ed573";
+        statusText.textContent = "تم تفعيل الإيقاف المؤقت (Pause)!";
+        clearTimeout(hideTimeout);
+      } else {
+        btnLabel.textContent = "Pause";
+        pauseBtn.style.backgroundColor = "#ff4757";
+        statusText.textContent = "تم استئناف العمل.";
+        hideTimeout = setTimeout(() => {
+          pauseBtn.classList.remove('show');
+        }, 2000);
+      }
+    }
+
+    // تسجيل Service Worker لتفعيل خصائص الـ PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('Service Worker Registered'))
+          .catch(err => console.log('Service Worker Failed', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
+

@@ -1,0 +1,15 @@
+{
+  "name": "زر Pause عند النسخ",
+  "short_name": "Pause App",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#ff4757",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "204x204",
+      "type": "image/png"
+    }
+  ]
+}}
